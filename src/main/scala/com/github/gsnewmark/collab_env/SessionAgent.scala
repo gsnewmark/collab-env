@@ -29,16 +29,17 @@ class SessionAgent extends Agent {
     } catch {
       case fe: FIPAException => fe.printStackTrace()
     }
-    addBehaviour(new JoinSessionHandler)
+    addBehaviour(new JoinSessionRequestHandler)
   }
 
   /** Processes join session messages. */
-  private class JoinSessionHandler extends CyclicBehaviour {
+  private class JoinSessionRequestHandler extends CyclicBehaviour {
     private val mt: MessageTemplate =
         MessageTemplate.MatchPerformative(ACLMessage.CFP)
 
 	def action() {
 	  val msg: ACLMessage = myAgent.receive(mt)
+      println(msg)
 	  block()
 	}
   }
