@@ -1,19 +1,22 @@
 package com.github.gsnewmark.collab_env
 
-import jade.core.{Agent, AID}
+import jade.core.{ AID, Agent }
 import jade.core.behaviours.CyclicBehaviour
-import jade.lang.acl.{ACLMessage, MessageTemplate}
-import jade.domain.{DFService, FIPAException}
+import jade.domain.{ DFService, FIPAException }
 import jade.domain.FIPAAgentManagement.{
-  DFAgentDescription, ServiceDescription}
+  DFAgentDescription,
+  ServiceDescription
+}
+import jade.lang.acl.{ ACLMessage, MessageTemplate }
 
-/** Represents a Session of the environment.
-  *
-  * Serves as a container for Users. First joined User becomes master, all
-  * others are slaves.
-  *
-  * Ensures that master can't leave until there are some slaves left.
-  */
+/**
+ * Represents a Session of the environment.
+ *
+ * Serves as a container for Users. First joined User becomes master, all
+ * others are slaves.
+ *
+ * Ensures that master can't leave until there are some slaves left.
+ */
 class SessionAgent extends Agent {
   protected override def setup() = {
     println(s"Session was created: ${getAID().getName()}")
@@ -44,13 +47,13 @@ class SessionAgent extends Agent {
   /** Processes join session messages. */
   private class RequestHandler extends CyclicBehaviour {
     private val mt: MessageTemplate =
-        MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
+      MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
 
     private var master: Option[AID] = None
     private var slaves: Set[AID] = Set()
 
-	def action() {
-	  val msg: ACLMessage = myAgent.receive(mt)
+    def action() {
+      val msg: ACLMessage = myAgent.receive(mt)
       if (msg != null) {
         val reply = msg.createReply()
         val sender = msg.getSender()
@@ -83,6 +86,6 @@ class SessionAgent extends Agent {
         }
         myAgent.send(reply)
       }
-	}
+    }
   }
 }

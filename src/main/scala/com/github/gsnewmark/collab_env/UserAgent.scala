@@ -1,17 +1,21 @@
 package com.github.gsnewmark.collab_env
 
-import jade.core.{AID, Agent}
-import jade.core.behaviours.{OneShotBehaviour, WakerBehaviour, Behaviour}
-import jade.domain.{DFService, FIPAException}
-import jade.domain.FIPAAgentManagement.{DFAgentDescription, ServiceDescription}
-import jade.lang.acl.{ACLMessage, MessageTemplate}
+import jade.core.{ AID, Agent }
+import jade.core.behaviours.{ Behaviour, OneShotBehaviour, WakerBehaviour }
+import jade.domain.{ DFService, FIPAException }
+import jade.domain.FIPAAgentManagement.{
+  DFAgentDescription,
+  ServiceDescription
+}
+import jade.lang.acl.{ ACLMessage, MessageTemplate }
 import scala.util.Random
 
-/** Represents a User of the environment.
-  *
-  * Each user tries to join an existing session (either as master or slave),
-  * and then exits from joined session after a configurable delay.
-  */
+/**
+ * Represents a User of the environment.
+ *
+ * Each user tries to join an existing session (either as master or slave),
+ * and then exits from joined session after a configurable delay.
+ */
 class UserAgent extends Agent {
   val leaveSessionDelay = 2000 + Random.nextInt(4000)
 
@@ -84,8 +88,8 @@ class UserAgent extends Agent {
   }
 
   private class LeaveSessionRequestBehaviour(
-    val agent: Agent, val session:AID, val delay: Long)
-      extends WakerBehaviour(agent, delay) {
+    val agent: Agent, val session: AID, val delay: Long)
+    extends WakerBehaviour(agent, delay) {
     protected override def onWake() = {
       val message = new ACLMessage(ACLMessage.REQUEST)
       message.addReceiver(session)
@@ -101,7 +105,7 @@ class UserAgent extends Agent {
 
   private class LeaveSessionResponseBehaviour(
     val message: ACLMessage, val session: AID, val delay: Long)
-      extends Behaviour {
+    extends Behaviour {
     val mt = MessageTemplate.and(
       MessageTemplate.MatchConversationId(Env.leaveConversationId),
       MessageTemplate.MatchInReplyTo(message.getReplyWith))
