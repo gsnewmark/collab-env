@@ -27,7 +27,7 @@ quite naturally, starts handy GUI for started container.
 
 To start container populated with and agent execute:
 
-   sbt "run-main jade.Boot -local-host localhost -gui john:some.package.Agent"
+    sbt "run-main jade.Boot -local-host localhost -gui john:some.package.Agent"
 
 Here we specify the agent using pair `name:impl-class` as an argument. So in
 this example agent with name `john` with implementation class
