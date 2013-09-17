@@ -78,8 +78,9 @@ class UserAgent extends Agent {
             myAgent.doDelete()
         }
         received = true
+      } else {
+        block()
       }
-      block()
     }
 
     def done(): Boolean = {
@@ -123,8 +124,9 @@ class UserAgent extends Agent {
               new LeaveSessionRequestBehaviour(myAgent, session, delay))
         }
         received = true
+      } else {
+        block()
       }
-      block()
     }
 
     def done(): Boolean = {

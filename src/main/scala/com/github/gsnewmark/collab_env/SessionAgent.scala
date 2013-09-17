@@ -67,24 +67,26 @@ class SessionAgent extends Agent {
             } else {
               slaves = slaves + sender
               reply.setContent(Env.slaveRole)
-              println(s"Slave joined: ${sender.getName()}. Current number of slaves: ${slaves.size}")
+              println(s"Slave joined ${myAgent.getName()}: ${sender.getName()}. Current number of slaves: ${slaves.size}")
             }
           case Env.leaveRequest =>
             if (!master.isEmpty && master.get == sender && !slaves.isEmpty) {
               reply.setPerformative(ACLMessage.REFUSE)
-              println(s"Master ${master.get.getName()} can't leave because slaves exist")
+              println(s"Master ${master.get.getName()} can't leave ${myAgent.getName()} because slaves exist")
             } else {
               if (master.get == sender) {
                 master = None
-                println(s"Master left: ${sender.getName()}")
+                println(s"Master left ${myAgent.getName()}: ${sender.getName()}")
               } else {
                 slaves = slaves - sender
-                println(s"Slave left: ${sender.getName()}. Slaves left: ${slaves.size}")
+                println(s"Slave left ${myAgent.getName()}: ${sender.getName()}. Slaves left: ${slaves.size}")
               }
               reply.setPerformative(ACLMessage.AGREE)
             }
         }
         myAgent.send(reply)
+      } else {
+        block()
       }
     }
   }
