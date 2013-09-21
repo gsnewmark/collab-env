@@ -1,13 +1,8 @@
 package com.github.gsnewmark.collab_env
 
-import jade.core.{ AID, Agent }
+import jade.core.{AID, Agent}
 import jade.core.behaviours.CyclicBehaviour
-import jade.domain.{ DFService, FIPAException }
-import jade.domain.FIPAAgentManagement.{
-  DFAgentDescription,
-  ServiceDescription
-}
-import jade.lang.acl.{ ACLMessage, MessageTemplate }
+import jade.lang.acl.{ACLMessage, MessageTemplate}
 
 /**
  * Represents a Session of the environment.
@@ -17,35 +12,13 @@ import jade.lang.acl.{ ACLMessage, MessageTemplate }
  *
  * Ensures that master can't leave until there are some slaves left.
  */
-class SessionAgent extends Agent {
-  protected override def setup() = {
-    println(s"Session was created: ${getAID().getName()}")
-
-    val dfd: DFAgentDescription = new DFAgentDescription
-    dfd.setName(getAID())
-    val sd: ServiceDescription = new ServiceDescription()
-    sd.setName(Env.sessionServiceName)
-    sd.setType(Env.serviceType)
-    dfd.addServices(sd)
-    try {
-      DFService.register(this, dfd)
-    } catch {
-      case fe: FIPAException => fe.printStackTrace()
-    }
-    addBehaviour(new RequestHandler)
-  }
-
-  protected override def takeDown() = {
-    try {
-      DFService.deregister(this)
-    } catch {
-      case fe: FIPAException => fe.printStackTrace()
-    }
-    println(s"Session ${getAID().getName()} terminated.");
-  }
+class SessionAgent extends Agent with ServiceAgent {
+  val serviceName: String = Env.sessionServiceName
+  val serviceType: String = Env.sessionServiceType
+  val initialBehaviours = new RequestHandler :: Nil
 
   /** Processes join session messages. */
-  private class RequestHandler extends CyclicBehaviour {
+  class RequestHandler extends CyclicBehaviour {
     private val mt: MessageTemplate =
       MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
 
