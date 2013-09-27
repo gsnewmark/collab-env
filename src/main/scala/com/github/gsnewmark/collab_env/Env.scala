@@ -3,23 +3,23 @@ package com.github.gsnewmark.collab_env
 object Env {
   val sessionServiceType = "collab-env-session"
   val sessionServiceName = "collab-env-session-"
-  val levelServiceType = "collab-env-level"
-  val levelServiceName = "collab-env-level-"
+  val floorServiceType = "collab-env-floor"
+  val floorServiceName = "collab-env-floor-"
 
   val joinConversationId = "join"
   val leaveConversationId = "leave"
-  val joinLevelConversationId = "join-level"
-  val leaveLevelConversationId = "leave-level"
-  val suspendLevelConversationId = "suspend-level"
-  val resumeLevelConversationId = "resume-level"
+  val joinFloorConversationId = "join-floor"
+  val leaveFloorConversationId = "leave-floor"
+  val suspendFloorConversationId = "suspend-floor"
+  val resumeFloorConversationId = "resume-floor"
 
   val masterRole = "master"
   val slaveRole = "slave"
 
   val joinRequest = "join-request"
   val leaveRequest = "leave-request"
-  val joinLevelRequest = "join-level-request"
-  val leaveLevelRequest = "leave-level-request"
-  val suspendLevelRequest = "suspend-request"
-  val resumeLevelRequest = "resume-request"
+  val joinFloorRequest = "join-floor-request"
+  val leaveFloorRequest = "leave-floor-request"
+  val suspendFloorRequest = "suspend-request"
+  val resumeFloorRequest = "resume-request"
 }

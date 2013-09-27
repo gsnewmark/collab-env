@@ -10,16 +10,16 @@ import jade.domain.FIPAAgentManagement.{
 import jade.lang.acl.{ ACLMessage, MessageTemplate }
 
 /**
- * Represents a Level of the environment.
+ * Represents a Floor of the environment.
  *
- * Serves as a resource for Users. One instance of Level could be hold only by
+ * Serves as a resource for Users. One instance of Floor could be hold only by
  * one user.
  *
- * Each Level could be either in active or suspended state.
+ * Each Floor could be either in active or suspended state.
  */
-class LevelAgent extends Agent with ServiceAgent {
-  val serviceName: String = Env.levelServiceName
-  val serviceType: String = Env.levelServiceType
+class FloorAgent extends Agent with ServiceAgent {
+  val serviceName: String = Env.floorServiceName
+  val serviceType: String = Env.floorServiceType
   val initialBehaviours = new RequestHandler :: Nil
 
   class RequestHandler extends CyclicBehaviour {
@@ -35,7 +35,7 @@ class LevelAgent extends Agent with ServiceAgent {
         val reply = msg.createReply()
         val sender = msg.getSender()
         msg.getContent() match {
-          case Env.joinLevelRequest =>
+          case Env.joinFloorRequest =>
             if (master.isEmpty) {
               reply.setPerformative(ACLMessage.AGREE)
               master = Some(sender)
@@ -45,7 +45,7 @@ class LevelAgent extends Agent with ServiceAgent {
               reply.setPerformative(ACLMessage.REFUSE)
               println(s"${fullServiceName} is already acquired, so ${sender.getName()} can't use it")
             }
-          case Env.leaveLevelRequest =>
+          case Env.leaveFloorRequest =>
             if (!master.isEmpty && master.get == sender) {
               master = None
               reply.setPerformative(ACLMessage.AGREE)
@@ -54,7 +54,7 @@ class LevelAgent extends Agent with ServiceAgent {
               reply.setPerformative(ACLMessage.REFUSE)
               println(s"${sender.getName()} can't release ${fullServiceName}")
             }
-          case Env.suspendLevelRequest =>
+          case Env.suspendFloorRequest =>
             if (!master.isEmpty && master.get == sender && isWorking) {
               isWorking = false
               reply.setPerformative(ACLMessage.AGREE)
@@ -63,7 +63,7 @@ class LevelAgent extends Agent with ServiceAgent {
               reply.setPerformative(ACLMessage.REFUSE)
               println(s"${sender.getName()} can't suspend ${fullServiceName}")
             }
-          case Env.resumeLevelRequest =>
+          case Env.resumeFloorRequest =>
             if (!master.isEmpty && master.get == sender && !isWorking) {
               isWorking = true
               reply.setPerformative(ACLMessage.AGREE)

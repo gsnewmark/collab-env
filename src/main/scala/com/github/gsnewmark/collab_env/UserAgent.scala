@@ -73,7 +73,7 @@ class UserAgent extends Agent {
         reply.getPerformative() match {
           case ACLMessage.AGREE =>
             myAgent.addBehaviour(
-              new AcquireLevelRequestBehaviour(myAgent, session, 0))
+              new AcquireFloorRequestBehaviour(myAgent, session, 0))
           case ACLMessage.REFUSE =>
             println(s"${myAgent.getName()} can't join the session")
             myAgent.doDelete()
@@ -89,40 +89,40 @@ class UserAgent extends Agent {
     }
   }
 
-  private class AcquireLevelRequestBehaviour(
+  private class AcquireFloorRequestBehaviour(
     val agent: Agent, val session: AID, val delay: Long)
     extends WakerBehaviour(agent, delay) {
     override def onWake(): Unit = {
       val template: DFAgentDescription = new DFAgentDescription
       val sd: ServiceDescription = new ServiceDescription
-      sd.setType(Env.levelServiceType)
+      sd.setType(Env.floorServiceType)
       template.addServices(sd)
-      var levels: List[AID] = List()
-      while (levels.isEmpty) {
+      var floors: List[AID] = List()
+      while (floors.isEmpty) {
         try {
-          levels = DFService.search(myAgent, template).toList.map(_.getName)
+          floors = DFService.search(myAgent, template).toList.map(_.getName)
         } catch {
           case e: FIPAException => e.printStackTrace
         }
       }
 
-      val level = Random.shuffle(levels).head
+      val floor = Random.shuffle(floors).head
       val message = new ACLMessage(ACLMessage.REQUEST)
-      message.addReceiver(level)
-      message.setContent(Env.joinLevelRequest)
-      message.setConversationId(Env.joinLevelConversationId)
+      message.addReceiver(floor)
+      message.setContent(Env.joinFloorRequest)
+      message.setConversationId(Env.joinFloorConversationId)
       message.setReplyWith(
-        "joinLevel" + myAgent.getAID() + System.currentTimeMillis())
-      myAgent.addBehaviour(new AcquireLevelResponseBehaviour(message, session, level))
+        "joinFloor" + myAgent.getAID() + System.currentTimeMillis())
+      myAgent.addBehaviour(new AcquireFloorResponseBehaviour(message, session, floor))
       myAgent.send(message)
     }
   }
 
-  private class AcquireLevelResponseBehaviour(
-    val message: ACLMessage, val session: AID, val level: AID)
+  private class AcquireFloorResponseBehaviour(
+    val message: ACLMessage, val session: AID, val floor: AID)
     extends Behaviour {
     val mt = MessageTemplate.and(
-      MessageTemplate.MatchConversationId(Env.joinLevelConversationId),
+      MessageTemplate.MatchConversationId(Env.joinFloorConversationId),
       MessageTemplate.MatchInReplyTo(message.getReplyWith))
     var received = false
 
@@ -132,11 +132,11 @@ class UserAgent extends Agent {
         reply.getPerformative() match {
           case ACLMessage.AGREE =>
             myAgent.addBehaviour(
-              new SuspendLevelRequestBehaviour(
-                myAgent, session, level, genDelay))
+              new SuspendFloorRequestBehaviour(
+                myAgent, session, floor, genDelay))
           case ACLMessage.REFUSE =>
             myAgent.addBehaviour(
-              new AcquireLevelRequestBehaviour(myAgent, session, genDelay))
+              new AcquireFloorRequestBehaviour(myAgent, session, genDelay))
         }
         received = true
       } else {
@@ -149,26 +149,26 @@ class UserAgent extends Agent {
     }
   }
 
-  private class SuspendLevelRequestBehaviour(
-    val agent: Agent, val session: AID, val level: AID, val delay: Long)
+  private class SuspendFloorRequestBehaviour(
+    val agent: Agent, val session: AID, val floor: AID, val delay: Long)
     extends WakerBehaviour(agent, delay) {
     override def onWake(): Unit = {
       val message = new ACLMessage(ACLMessage.REQUEST)
-      message.addReceiver(level)
-      message.setContent(Env.suspendLevelRequest)
-      message.setConversationId(Env.suspendLevelConversationId)
+      message.addReceiver(floor)
+      message.setContent(Env.suspendFloorRequest)
+      message.setConversationId(Env.suspendFloorConversationId)
       message.setReplyWith(
-        "suspendLevel" + myAgent.getAID() + System.currentTimeMillis())
-      myAgent.addBehaviour(new SuspendLevelResponseBehaviour(message, session, level))
+        "suspendFloor" + myAgent.getAID() + System.currentTimeMillis())
+      myAgent.addBehaviour(new SuspendFloorResponseBehaviour(message, session, floor))
       myAgent.send(message)
     }
   }
 
-  private class SuspendLevelResponseBehaviour(
-    val message: ACLMessage, val session: AID, val level: AID)
+  private class SuspendFloorResponseBehaviour(
+    val message: ACLMessage, val session: AID, val floor: AID)
     extends Behaviour {
     val mt = MessageTemplate.and(
-      MessageTemplate.MatchConversationId(Env.suspendLevelConversationId),
+      MessageTemplate.MatchConversationId(Env.suspendFloorConversationId),
       MessageTemplate.MatchInReplyTo(message.getReplyWith))
     var received = false
 
@@ -178,11 +178,11 @@ class UserAgent extends Agent {
         reply.getPerformative() match {
           case ACLMessage.AGREE =>
             myAgent.addBehaviour(
-              new ResumeLevelRequestBehaviour(
-                myAgent, session, level, genDelay))
+              new ResumeFloorRequestBehaviour(
+                myAgent, session, floor, genDelay))
           case ACLMessage.REFUSE =>
             myAgent.addBehaviour(
-              new SuspendLevelRequestBehaviour(myAgent, session, level, genDelay))
+              new SuspendFloorRequestBehaviour(myAgent, session, floor, genDelay))
         }
         received = true
       } else {
@@ -195,25 +195,25 @@ class UserAgent extends Agent {
     }
   }
 
-  private class ResumeLevelRequestBehaviour(
-    val agent: Agent, val session: AID, val level: AID, val delay: Long)
+  private class ResumeFloorRequestBehaviour(
+    val agent: Agent, val session: AID, val floor: AID, val delay: Long)
     extends WakerBehaviour(agent, delay) {
     override def onWake(): Unit = {
       val message = new ACLMessage(ACLMessage.REQUEST)
-      message.addReceiver(level)
-      message.setContent(Env.resumeLevelRequest)
-      message.setConversationId(Env.resumeLevelConversationId)
+      message.addReceiver(floor)
+      message.setContent(Env.resumeFloorRequest)
+      message.setConversationId(Env.resumeFloorConversationId)
       message.setReplyWith(
-        "resumeLevel" + myAgent.getAID() + System.currentTimeMillis())
-      myAgent.addBehaviour(new ResumeLevelResponseBehaviour(message, session, level))
+        "resumeFloor" + myAgent.getAID() + System.currentTimeMillis())
+      myAgent.addBehaviour(new ResumeFloorResponseBehaviour(message, session, floor))
       myAgent.send(message)
     }
   }
 
-  private class ResumeLevelResponseBehaviour(
-    val message: ACLMessage, val session: AID, val level: AID) extends Behaviour {
+  private class ResumeFloorResponseBehaviour(
+    val message: ACLMessage, val session: AID, val floor: AID) extends Behaviour {
     val mt = MessageTemplate.and(
-      MessageTemplate.MatchConversationId(Env.resumeLevelConversationId),
+      MessageTemplate.MatchConversationId(Env.resumeFloorConversationId),
       MessageTemplate.MatchInReplyTo(message.getReplyWith))
     var received = false
 
@@ -223,11 +223,11 @@ class UserAgent extends Agent {
         reply.getPerformative() match {
           case ACLMessage.AGREE =>
             myAgent.addBehaviour(
-              new ReleaseLevelRequestBehaviour(
-                myAgent, session, level, genDelay))
+              new ReleaseFloorRequestBehaviour(
+                myAgent, session, floor, genDelay))
           case ACLMessage.REFUSE =>
             myAgent.addBehaviour(
-              new ResumeLevelRequestBehaviour(myAgent, session, level, genDelay))
+              new ResumeFloorRequestBehaviour(myAgent, session, floor, genDelay))
         }
         received = true
       } else {
@@ -240,25 +240,25 @@ class UserAgent extends Agent {
     }
   }
 
-  private class ReleaseLevelRequestBehaviour(
-    val agent: Agent, val session: AID, val level: AID, val delay: Long)
+  private class ReleaseFloorRequestBehaviour(
+    val agent: Agent, val session: AID, val floor: AID, val delay: Long)
     extends WakerBehaviour(agent, delay) {
     override def onWake(): Unit = {
       val message = new ACLMessage(ACLMessage.REQUEST)
-      message.addReceiver(level)
-      message.setContent(Env.leaveLevelRequest)
-      message.setConversationId(Env.leaveLevelConversationId)
+      message.addReceiver(floor)
+      message.setContent(Env.leaveFloorRequest)
+      message.setConversationId(Env.leaveFloorConversationId)
       message.setReplyWith(
-        "leaveLevel" + myAgent.getAID() + System.currentTimeMillis())
-      myAgent.addBehaviour(new ReleaseLevelResponseBehaviour(message, session, level))
+        "leaveFloor" + myAgent.getAID() + System.currentTimeMillis())
+      myAgent.addBehaviour(new ReleaseFloorResponseBehaviour(message, session, floor))
       myAgent.send(message)
     }
   }
 
-  private class ReleaseLevelResponseBehaviour(
-    val message: ACLMessage, val session: AID, val level: AID) extends Behaviour {
+  private class ReleaseFloorResponseBehaviour(
+    val message: ACLMessage, val session: AID, val floor: AID) extends Behaviour {
     val mt = MessageTemplate.and(
-      MessageTemplate.MatchConversationId(Env.leaveLevelConversationId),
+      MessageTemplate.MatchConversationId(Env.leaveFloorConversationId),
       MessageTemplate.MatchInReplyTo(message.getReplyWith))
     var received = false
 
@@ -272,7 +272,7 @@ class UserAgent extends Agent {
                 myAgent, session, genDelay))
           case ACLMessage.REFUSE =>
             myAgent.addBehaviour(
-              new ReleaseLevelRequestBehaviour(myAgent, session, level, genDelay))
+              new ReleaseFloorRequestBehaviour(myAgent, session, floor, genDelay))
         }
         received = true
       } else {
