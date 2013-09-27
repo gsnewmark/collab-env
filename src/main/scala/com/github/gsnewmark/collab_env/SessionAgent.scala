@@ -36,7 +36,7 @@ class SessionAgent extends Agent with ServiceAgent {
             if (master.isEmpty) {
               master = Some(sender)
               reply.setContent(Env.masterRole)
-              println(s"Master joined: ${sender.getName()}")
+              println(s"Master joined ${myAgent.getName()}: ${sender.getName()}")
             } else {
               slaves = slaves + sender
               reply.setContent(Env.slaveRole)
